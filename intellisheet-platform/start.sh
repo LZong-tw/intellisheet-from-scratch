@@ -22,6 +22,16 @@ fi
 echo "✅ Node.js $(node -v) detected"
 echo ""
 
+# Check and fix PostCSS config
+if [ -f "postcss.config.js" ]; then
+    if grep -q "export default" postcss.config.js; then
+        echo "🔧 Fixing PostCSS configuration..."
+        sed -i.bak 's/export default/module.exports =/g' postcss.config.js
+        echo "✅ PostCSS config updated to CommonJS format"
+        echo ""
+    fi
+fi
+
 # Install dependencies if needed
 if [ ! -d "node_modules" ]; then
     echo "📦 Installing dependencies..."
@@ -56,4 +66,16 @@ echo "🌐 Opening http://localhost:3000 in your browser..."
 echo ""
 
 # Start the development server
-npm run dev
+echo "🚀 Launching development server..."
+if npm run dev; then
+    echo ""
+    echo "✅ IntelliSheet Platform stopped successfully"
+else
+    echo ""
+    echo "❌ Development server encountered an error"
+    echo "💡 Troubleshooting tips:"
+    echo "   • Check if port 3000 is already in use"
+    echo "   • Verify all dependencies are installed: npm install"
+    echo "   • Check for configuration errors above"
+    exit 1
+fi

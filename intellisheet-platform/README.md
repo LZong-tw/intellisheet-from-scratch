@@ -8,12 +8,29 @@
 
 ## 🚀 快速開始
 
+### Linux/macOS 使用者
 ```bash
 # 克隆專案
 cd intellisheet-platform
 
 # 一鍵啟動
 ./start.sh
+
+# 或手動啟動
+npm install
+npm run dev
+```
+
+### Windows 使用者
+```powershell
+# 克隆專案
+cd intellisheet-platform
+
+# 一鍵啟動 (PowerShell)
+.\start.ps1
+
+# 如果執行政策限制，請使用
+powershell -ExecutionPolicy Bypass -File start.ps1
 
 # 或手動啟動
 npm install
@@ -73,7 +90,8 @@ intellisheet-platform/
 │   └── types/        # TypeScript 型別
 ├── public/           # 靜態資源
 ├── package.json      # 專案配置
-└── start.sh         # 快速啟動腳本
+├── start.sh         # 快速啟動腳本 (Linux/macOS)
+└── start.ps1        # 快速啟動腳本 (Windows PowerShell)
 ```
 
 ## 🛠️ 技術架構
