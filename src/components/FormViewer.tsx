@@ -14,12 +14,27 @@ export default function FormViewer() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
 
   useEffect(() => {
+    // Set a timeout to show error if form doesn't load
+    const loadTimeout = setTimeout(() => {
+      if (!form) {
+        setLoadError(true)
+        setIsLoading(false)
+      }
+    }, 5000) // 5 second timeout
+
     // In a real app, this would fetch the form from an API
+    console.log('FormViewer: Looking for form with ID:', formId)
+    console.log('FormViewer: Available forms:', forms.map(f => ({ id: f.id, shareUrl: f.shareUrl })))
+    
     const foundForm = forms.find(f => f.shareUrl?.includes(formId || ''))
     if (foundForm) {
+      console.log('FormViewer: Found form:', foundForm.name)
       setForm(foundForm)
+      setIsLoading(false)
       // Initialize form data with default values
       const initialData: Record<string, any> = {}
       foundForm.fields.forEach(field => {
@@ -29,7 +44,9 @@ export default function FormViewer() {
       })
       setFormData(initialData)
     }
-  }, [formId, forms])
+
+    return () => clearTimeout(loadTimeout)
+  }, [formId, forms, form])
 
   const validateField = (fieldId: string, value: any): string | null => {
     const field = form?.fields.find(f => f.columnId === fieldId)
@@ -131,12 +148,27 @@ export default function FormViewer() {
     }
   }
 
-  if (!form) {
+  if (!form || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600">Loading form...</p>
+          {loadError ? (
+            <>
+              <div className="text-red-500 mb-4">
+                <svg className="w-12 h-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold mb-2">Form Not Found</h2>
+              <p className="text-gray-600 mb-4">The form you're looking for doesn't exist or has been removed.</p>
+              <p className="text-sm text-gray-500">Form ID: {formId}</p>
+            </>
+          ) : (
+            <>
+              <Loader2 className="w-8 h-8 animate-spin mx-auto text-gray-400 mb-4" />
+              <p className="text-gray-600">Loading form...</p>
+            </>
+          )}
         </div>
       </div>
     )

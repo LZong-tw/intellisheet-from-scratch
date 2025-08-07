@@ -101,6 +101,31 @@ IntelliSheet now includes a powerful form generation feature similar to Grist, a
 4. Submissions collected and stored
 5. Data imported back to spreadsheet on demand
 
+## Testing the Form Feature
+
+1. **Create a Form**:
+   - Navigate to any spreadsheet (e.g., `/spreadsheet/new`)
+   - Click the "Generate Form" button in the toolbar
+   - Configure your form fields and settings
+   - Click "Save" and then "Share Form" to copy the form URL
+
+2. **Access the Form**:
+   - Open the copied form URL in a new tab or incognito window
+   - The form will load with all visible fields
+   - Submit data through the form
+
+3. **View Submissions**:
+   - Return to the spreadsheet
+   - Click "View Submissions" button (appears after creating a form)
+   - Select submissions and click "Add Selected to Sheet" to import them
+
+## Technical Notes
+
+- Forms are persisted in localStorage using Zustand persist middleware
+- Form URLs follow the pattern: `/form/{timestamp}`
+- Hidden fields are excluded from public forms but visible in admin views
+- All form data is validated both client-side (HTML5) and in the validation logic
+
 ## Future Enhancements
 - File upload fields
 - Conditional logic (show/hide fields)

@@ -68,7 +68,15 @@ export default function Spreadsheet() {
   const [showFormBuilder, setShowFormBuilder] = useState(false)
   const [showSubmissions, setShowSubmissions] = useState(false)
   const formulaBarRef = useRef<HTMLInputElement>(null)
-  const { getFormBySpreadsheetId, submissions } = useFormStore()
+  const { getFormBySpreadsheetId, submissions, createForm, forms } = useFormStore()
+
+  // Create a demo form on first load if none exists
+  useEffect(() => {
+    if (id && !getFormBySpreadsheetId(id) && forms.length === 0) {
+      // Create a demo form for testing
+      createForm(id, mockColumns)
+    }
+  }, [id])
 
   // Calculate formula values
   const calculateFormula = (formula: string, rowIndex: number) => {

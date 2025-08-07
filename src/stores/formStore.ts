@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { Form, FormField, FormSubmission } from '../types/form'
 
 interface FormStore {
@@ -26,7 +27,9 @@ interface FormStore {
   setActiveForm: (form: Form | null) => void
 }
 
-export const useFormStore = create<FormStore>((set, get) => ({
+export const useFormStore = create<FormStore>()(
+  persist(
+    (set, get) => ({
   forms: [],
   activeForm: null,
   submissions: [],
@@ -181,4 +184,34 @@ export const useFormStore = create<FormStore>((set, get) => ({
   setActiveForm: (form: Form | null) => {
     set({ activeForm: form })
   },
-}))
+    }),
+    {
+      name: 'form-storage', // unique name for localStorage key
+      // Optional: Configure which parts of the state to persist
+      partialize: (state) => ({
+        forms: state.forms,
+        submissions: state.submissions,
+      }),
+      // Handle Date serialization
+      serialize: (state) => JSON.stringify(state),
+      deserialize: (str) => {
+        const parsed = JSON.parse(str)
+        // Convert date strings back to Date objects
+        if (parsed.state?.forms) {
+          parsed.state.forms = parsed.state.forms.map((form: any) => ({
+            ...form,
+            createdAt: new Date(form.createdAt),
+            updatedAt: new Date(form.updatedAt),
+          }))
+        }
+        if (parsed.state?.submissions) {
+          parsed.state.submissions = parsed.state.submissions.map((sub: any) => ({
+            ...sub,
+            submittedAt: new Date(sub.submittedAt),
+          }))
+        }
+        return parsed
+      },
+    }
+  )
+)
