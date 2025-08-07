@@ -7,6 +7,7 @@ IntelliSheet now includes a powerful form generation feature similar to Grist, a
 
 ### 1. Form Builder
 - **Access**: Click the "Generate Form" button in the spreadsheet toolbar
+- **Edit Existing Forms**: Forms can be edited anytime by clicking "Generate Form" again
 - **Drag & Drop**: Reorder form fields using drag and drop
 - **Field Types**: 
   - Text, Email, Number, Date
@@ -14,13 +15,18 @@ IntelliSheet now includes a powerful form generation feature similar to Grist, a
   - Select (dropdown)
   - Checkbox
   - Radio buttons
+- **Field Visibility**:
+  - Toggle field visibility with the eye icon
+  - Hidden fields won't appear in the public form
+  - Perfect for admin-only fields that shouldn't be user-editable
+  - Hidden fields still appear in submission management views
 - **Field Validation**:
   - Required fields
   - Min/Max length for text
   - Min/Max values for numbers
   - Email format validation
   - Custom regex patterns
-- **Live Preview**: See how your form looks while building it
+- **Live Preview**: See how your form looks while building it (only shows visible fields)
 
 ### 2. Form Settings
 - **Customization Options**:

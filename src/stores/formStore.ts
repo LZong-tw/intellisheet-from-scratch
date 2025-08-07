@@ -45,6 +45,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
           label: col.name,
           type: col.type === 'number' ? 'number' : col.type === 'date' ? 'date' : 'text',
           required: false,
+          visible: true,
           order: index,
           placeholder: `Enter ${col.name.toLowerCase()}`,
         })),

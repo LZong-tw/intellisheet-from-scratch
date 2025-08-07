@@ -4,6 +4,7 @@ export interface FormField {
   label: string
   type: 'text' | 'number' | 'email' | 'date' | 'select' | 'textarea' | 'checkbox' | 'radio'
   required: boolean
+  visible: boolean // Whether the field is visible in the form (false for admin-only fields)
   placeholder?: string
   helpText?: string
   validation?: FieldValidation
