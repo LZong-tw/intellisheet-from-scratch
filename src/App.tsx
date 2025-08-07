@@ -8,6 +8,7 @@ import Workflows from './pages/Workflows'
 import Analytics from './pages/Analytics'
 import Settings from './pages/Settings'
 import AITools from './pages/AITools'
+import FormViewer from './components/FormViewer'
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="ai-tools" element={<AITools />} />
           <Route path="settings" element={<Settings />} />
         </Route>
+        <Route path="/form/:formId" element={<FormViewer />} />
       </Routes>
       <Toaster
         position="top-right"
