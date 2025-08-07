@@ -64,6 +64,7 @@ export const useFormStore = create<FormStore>()(
           borderRadius: '0.5rem',
         }
       },
+      status: 'active',
       createdAt: new Date(),
       updatedAt: new Date(),
       createdBy: 'current-user',

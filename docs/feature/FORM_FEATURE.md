@@ -7,7 +7,7 @@ IntelliSheet now includes a powerful form generation feature similar to Grist, a
 
 ### 1. Form Builder
 - **Access**: Click the "Generate Form" button in the spreadsheet toolbar
-- **Edit Existing Forms**: Forms can be edited anytime by clicking "Generate Form" again
+- **Edit Existing Forms**: Button changes to "Edit Form" when a form exists
 - **Drag & Drop**: Reorder form fields using drag and drop
 - **Field Types**: 
   - Text, Email, Number, Date
@@ -59,6 +59,13 @@ IntelliSheet now includes a powerful form generation feature similar to Grist, a
 - **Batch Import**: Add multiple submissions at once
 - **Unique IDs**: Form submissions get unique IDs (FORM001, FORM002, etc.)
 - **Data Preservation**: Original spreadsheet data remains intact
+
+### 6. Form Management
+- **Form Status**: Enable/disable forms without deleting them
+- **Status Indicator**: Disabled forms show an orange "Form Disabled" badge in the toolbar
+- **Delete Forms**: Permanently remove forms and all their submissions
+- **Management Tab**: Dedicated tab in Form Builder for management options
+- **Form Info**: View creation date, last update, form URL, and form ID
 
 ## UI/UX Design Principles
 

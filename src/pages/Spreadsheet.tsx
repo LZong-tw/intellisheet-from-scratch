@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Plus, Save, Download, Share2, Lock, Unlock, Copy, Clipboard, Undo, Redo, Filter, SortAsc, SortDesc, FunctionSquare, FileDown, Upload, FileInput } from 'lucide-react'
+import { Plus, Save, Download, Share2, Lock, Unlock, Copy, Clipboard, Undo, Redo, Filter, SortAsc, SortDesc, FunctionSquare, FileDown, Upload, FileInput, Power } from 'lucide-react'
 import { motion } from 'framer-motion'
 import toast from 'react-hot-toast'
 import FormBuilder from '../components/FormBuilder'
@@ -348,21 +348,33 @@ export default function Spreadsheet() {
             <div className="border-l border-gray-700 h-6 mx-2" />
             <button 
               onClick={() => setShowFormBuilder(true)}
-              className="flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-medium"
-              title="Generate Form"
+              className={`flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${
+                getFormBySpreadsheetId(id || 'default') 
+                  ? 'bg-blue-600 hover:bg-blue-700' 
+                  : 'bg-green-600 hover:bg-green-700'
+              }`}
+              title={getFormBySpreadsheetId(id || 'default') ? "Edit Form" : "Generate Form"}
             >
               <FileInput className="w-4 h-4 mr-1" />
-              Generate Form
+              {getFormBySpreadsheetId(id || 'default') ? 'Edit Form' : 'Generate Form'}
             </button>
             {getFormBySpreadsheetId(id || 'default') && (
-              <button 
-                onClick={() => setShowSubmissions(true)}
-                className="flex items-center px-3 py-1.5 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-medium"
-                title="View Submissions"
-              >
-                <FileDown className="w-4 h-4 mr-1" />
-                View Submissions
-              </button>
+              <>
+                {getFormBySpreadsheetId(id || 'default')?.status === 'disabled' && (
+                  <span className="flex items-center gap-1 px-3 py-1.5 bg-orange-600/20 text-orange-400 rounded-lg text-sm">
+                    <Power className="w-4 h-4" />
+                    Form Disabled
+                  </span>
+                )}
+                <button 
+                  onClick={() => setShowSubmissions(true)}
+                  className="flex items-center px-3 py-1.5 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-medium"
+                  title="View Submissions"
+                >
+                  <FileDown className="w-4 h-4 mr-1" />
+                  View Submissions
+                </button>
+              </>
             )}
             <button className="p-1.5 hover:bg-gray-700 rounded-lg" title="Share">
               <Share2 className="w-5 h-5" />
