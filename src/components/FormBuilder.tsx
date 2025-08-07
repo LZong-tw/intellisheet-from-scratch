@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Plus, GripVertical, Settings, Eye, EyeOff, Save, Share2, Trash2 } from 'lucide-react'
+import { X, Plus, GripVertical, Settings, Eye, EyeOff, Save, Share2, Trash2, Power, AlertTriangle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
@@ -84,10 +84,11 @@ const SortableField: React.FC<SortableFieldProps> = ({ field, formId, onEdit }) 
 }
 
 export default function FormBuilder({ spreadsheetId, columns, onClose }: FormBuilderProps) {
-  const { forms, activeForm, createForm, updateForm, reorderFields, updateField, setActiveForm } = useFormStore()
+  const { forms, activeForm, createForm, updateForm, reorderFields, updateField, setActiveForm, deleteForm } = useFormStore()
   const [editingField, setEditingField] = useState<FormField | null>(null)
   const [showPreview, setShowPreview] = useState(false)
-  const [activeTab, setActiveTab] = useState<'fields' | 'settings'>('fields')
+  const [activeTab, setActiveTab] = useState<'fields' | 'settings' | 'manage'>('fields')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -142,6 +143,22 @@ export default function FormBuilder({ spreadsheetId, columns, onClose }: FormBui
       const fullUrl = `${window.location.origin}${activeForm.shareUrl}`
       navigator.clipboard.writeText(fullUrl)
       toast.success('Form link copied to clipboard!')
+    }
+  }
+
+  const handleToggleFormStatus = () => {
+    if (activeForm) {
+      const newStatus = activeForm.status === 'active' ? 'disabled' : 'active'
+      updateForm(activeForm.id, { status: newStatus })
+      toast.success(`Form ${newStatus === 'active' ? 'enabled' : 'disabled'}`)
+    }
+  }
+
+  const handleDeleteForm = () => {
+    if (activeForm) {
+      deleteForm(activeForm.id)
+      toast.success('Form deleted')
+      onClose()
     }
   }
 
@@ -218,6 +235,16 @@ export default function FormBuilder({ spreadsheetId, columns, onClose }: FormBui
               >
                 Settings
               </button>
+              <button
+                onClick={() => setActiveTab('manage')}
+                className={`px-6 py-3 font-medium transition-colors ${
+                  activeTab === 'manage'
+                    ? 'text-blue-400 border-b-2 border-blue-400'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Manage
+              </button>
             </div>
 
             {/* Tab Content */}
@@ -261,8 +288,14 @@ export default function FormBuilder({ spreadsheetId, columns, onClose }: FormBui
                     </SortableContext>
                   </DndContext>
                 </div>
-              ) : (
+              ) : activeTab === 'settings' ? (
                 <FormSettings form={activeForm} onUpdate={(updates) => updateForm(activeForm.id, updates)} />
+              ) : (
+                <FormManagement 
+                  form={activeForm} 
+                  onToggleStatus={handleToggleFormStatus}
+                  onDelete={() => setShowDeleteConfirm(true)}
+                />
               )}
             </div>
           </div>
@@ -286,6 +319,125 @@ export default function FormBuilder({ spreadsheetId, columns, onClose }: FormBui
           />
         )}
       </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-gray-900 rounded-xl p-6 max-w-md w-full"
+            >
+              <div className="flex items-center gap-3 mb-4 text-red-500">
+                <AlertTriangle className="w-6 h-6" />
+                <h3 className="text-xl font-semibold">Delete Form</h3>
+              </div>
+              
+              <p className="text-gray-300 mb-6">
+                Are you sure you want to delete this form? This will permanently remove the form and all its submissions.
+                This action cannot be undone.
+              </p>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    handleDeleteForm()
+                    setShowDeleteConfirm(false)
+                  }}
+                  className="flex-1 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-colors"
+                >
+                  Delete Form
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+// Form Management Component
+function FormManagement({ form, onToggleStatus, onDelete }: { 
+  form: Form; 
+  onToggleStatus: () => void;
+  onDelete: () => void;
+}) {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold mb-4">Form Status</h3>
+        
+        <div className="bg-gray-800 rounded-lg p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-medium">Form Status</h4>
+              <p className="text-sm text-gray-400 mt-1">
+                {form.status === 'active' 
+                  ? 'Form is active and accepting submissions' 
+                  : 'Form is disabled and not accepting submissions'}
+              </p>
+            </div>
+            <button
+              onClick={onToggleStatus}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                form.status === 'active'
+                  ? 'bg-orange-600 hover:bg-orange-700'
+                  : 'bg-green-600 hover:bg-green-700'
+              }`}
+            >
+              <Power className="w-4 h-4" />
+              {form.status === 'active' ? 'Disable Form' : 'Enable Form'}
+            </button>
+          </div>
+
+          <div className="border-t border-gray-700 pt-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-gray-400">Created</p>
+                <p className="font-medium">{new Date(form.createdAt).toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-gray-400">Last Updated</p>
+                <p className="font-medium">{new Date(form.updatedAt).toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-gray-400">Form URL</p>
+                <p className="font-medium text-blue-400">{form.shareUrl}</p>
+              </div>
+              <div>
+                <p className="text-gray-400">Form ID</p>
+                <p className="font-medium font-mono text-xs">{form.id}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-lg font-semibold mb-4 text-red-500">Danger Zone</h3>
+        
+        <div className="bg-red-900/20 border border-red-900/50 rounded-lg p-6">
+          <h4 className="font-medium text-red-400 mb-2">Delete Form</h4>
+          <p className="text-sm text-gray-400 mb-4">
+            Once you delete a form, there is no going back. All form data and submissions will be permanently removed.
+          </p>
+          <button
+            onClick={onDelete}
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-colors"
+          >
+            Delete Form
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

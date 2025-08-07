@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { Form, FormSubmission } from '../types/form'
 import { useFormStore } from '../stores/formStore'
 import toast from 'react-hot-toast'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Power } from 'lucide-react'
 
 export default function FormViewer() {
   const { formId } = useParams()
@@ -170,6 +170,27 @@ export default function FormViewer() {
             </>
           )}
         </div>
+      </div>
+    )
+  }
+
+  if (form.status === 'disabled') {
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center p-4"
+        style={{ backgroundColor: form.settings.theme?.backgroundColor || '#f9fafb' }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-md w-full text-center"
+        >
+          <div className="bg-orange-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+            <Power className="w-8 h-8 text-orange-600" />
+          </div>
+          <h2 className="text-2xl font-bold mb-2">Form Disabled</h2>
+          <p className="text-gray-600">This form is currently disabled and not accepting submissions.</p>
+        </motion.div>
       </div>
     )
   }

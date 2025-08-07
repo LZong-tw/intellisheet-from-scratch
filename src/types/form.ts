@@ -35,6 +35,7 @@ export interface Form {
   description?: string
   fields: FormField[]
   settings: FormSettings
+  status: 'active' | 'disabled'
   createdAt: Date
   updatedAt: Date
   createdBy: string
