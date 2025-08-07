@@ -83,9 +83,9 @@ export default function FormViewer() {
     
     if (!form) return
 
-    // Validate all fields
+    // Validate all visible fields
     const newErrors: Record<string, string> = {}
-    form.fields.forEach(field => {
+    form.fields.filter(field => field.visible).forEach(field => {
       const error = validateField(field.columnId, formData[field.columnId])
       if (error) {
         newErrors[field.columnId] = error
@@ -187,7 +187,7 @@ export default function FormViewer() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {form.fields.map(field => (
+            {form.fields.filter(field => field.visible).map(field => (
               <div key={field.id}>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {field.label}

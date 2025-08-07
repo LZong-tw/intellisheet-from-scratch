@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Plus, GripVertical, Settings, Eye, Save, Share2, Trash2 } from 'lucide-react'
+import { X, Plus, GripVertical, Settings, Eye, EyeOff, Save, Share2, Trash2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
@@ -50,6 +50,13 @@ const SortableField: React.FC<SortableFieldProps> = ({ field, formId, onEdit }) 
             <h4 className="font-medium">{field.label}</h4>
             <div className="flex items-center gap-2">
               <button
+                onClick={() => updateField(formId, field.id, { visible: !field.visible })}
+                className={`${field.visible ? 'text-gray-400 hover:text-gray-300' : 'text-orange-400 hover:text-orange-300'}`}
+                title={field.visible ? 'Hide field from form' : 'Show field in form'}
+              >
+                {field.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+              </button>
+              <button
                 onClick={() => onEdit(field)}
                 className="text-gray-400 hover:text-gray-300"
               >
@@ -67,6 +74,7 @@ const SortableField: React.FC<SortableFieldProps> = ({ field, formId, onEdit }) 
           <div className="flex items-center gap-4 text-sm text-gray-400">
             <span>Type: {field.type}</span>
             {field.required && <span className="text-yellow-400">Required</span>}
+            {!field.visible && <span className="text-orange-400">Hidden</span>}
             {field.validation && <span>Has validation</span>}
           </div>
         </div>
@@ -437,7 +445,7 @@ function FormPreview({ form }: { form: Form }) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {form.fields.map(field => (
+        {form.fields.filter(field => field.visible).map(field => (
           <div key={field.id}>
             <label className="block text-sm font-medium mb-2">
               {field.label}
@@ -589,7 +597,7 @@ function FieldEditor({
               />
             </div>
 
-            <div>
+            <div className="space-y-3">
               <label className="flex items-center gap-3">
                 <input
                   type="checkbox"
@@ -598,6 +606,17 @@ function FieldEditor({
                   className="w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500"
                 />
                 <span className="text-sm font-medium">Required field</span>
+              </label>
+              
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={editedField.visible}
+                  onChange={(e) => setEditedField({ ...editedField, visible: e.target.checked })}
+                  className="w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500"
+                />
+                <span className="text-sm font-medium">Visible in form</span>
+                <span className="text-xs text-gray-400">(Uncheck for admin-only fields)</span>
               </label>
             </div>
 
