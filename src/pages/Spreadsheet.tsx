@@ -1,8 +1,12 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Plus, Save, Download, Share2, Lock, Unlock, Copy, Clipboard, Undo, Redo, Filter, SortAsc, SortDesc, FunctionSquare, FileDown, Upload } from 'lucide-react'
+import { Plus, Save, Download, Share2, Lock, Unlock, Copy, Clipboard, Undo, Redo, Filter, SortAsc, SortDesc, FunctionSquare, FileDown, Upload, FileInput } from 'lucide-react'
 import { motion } from 'framer-motion'
 import toast from 'react-hot-toast'
+import FormBuilder from '../components/FormBuilder'
+import FormSubmissionsView from '../components/FormSubmissionsView'
+import { useFormStore } from '../stores/formStore'
+import { FormSubmission } from '../types/form'
 
 interface Cell {
   id: string
@@ -61,7 +65,10 @@ export default function Spreadsheet() {
   const [showFormulaBar, setShowFormulaBar] = useState(true)
   const [sortColumn, setSortColumn] = useState<string | null>(null)
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  const [showFormBuilder, setShowFormBuilder] = useState(false)
+  const [showSubmissions, setShowSubmissions] = useState(false)
   const formulaBarRef = useRef<HTMLInputElement>(null)
+  const { getFormBySpreadsheetId, submissions } = useFormStore()
 
   // Calculate formula values
   const calculateFormula = (formula: string, rowIndex: number) => {
@@ -231,6 +238,26 @@ export default function Spreadsheet() {
     toast.success('Exported to CSV')
   }, [data])
 
+  const handleAddSubmissionsToSpreadsheet = (formSubmissions: FormSubmission[]) => {
+    const newRows = formSubmissions.map((submission, index) => {
+      const row: any = {}
+      mockColumns.forEach(col => {
+        if (submission.data[col.id] !== undefined) {
+          row[col.id] = submission.data[col.id]
+        } else if (col.id === 'id') {
+          row[col.id] = `FORM${String(data.length + index + 1).padStart(3, '0')}`
+        } else {
+          row[col.id] = ''
+        }
+      })
+      return row
+    })
+    
+    setData(prevData => [...prevData, ...newRows])
+    recordHistory()
+    toast.success(`Added ${formSubmissions.length} form submissions`)
+  }
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -310,6 +337,25 @@ export default function Spreadsheet() {
             <button onClick={handleExport} className="p-1.5 hover:bg-gray-700 rounded-lg" title="Export">
               <Download className="w-5 h-5" />
             </button>
+            <div className="border-l border-gray-700 h-6 mx-2" />
+            <button 
+              onClick={() => setShowFormBuilder(true)}
+              className="flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-medium"
+              title="Generate Form"
+            >
+              <FileInput className="w-4 h-4 mr-1" />
+              Generate Form
+            </button>
+            {getFormBySpreadsheetId(id || 'default') && (
+              <button 
+                onClick={() => setShowSubmissions(true)}
+                className="flex items-center px-3 py-1.5 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-medium"
+                title="View Submissions"
+              >
+                <FileDown className="w-4 h-4 mr-1" />
+                View Submissions
+              </button>
+            )}
             <button className="p-1.5 hover:bg-gray-700 rounded-lg" title="Share">
               <Share2 className="w-5 h-5" />
             </button>
@@ -465,6 +511,24 @@ export default function Spreadsheet() {
           </div>
         </div>
       </div>
+
+      {/* Form Builder Modal */}
+      {showFormBuilder && (
+        <FormBuilder
+          spreadsheetId={id || 'default'}
+          columns={mockColumns}
+          onClose={() => setShowFormBuilder(false)}
+        />
+      )}
+
+      {/* Form Submissions Modal */}
+      {showSubmissions && (
+        <FormSubmissionsView
+          spreadsheetId={id || 'default'}
+          onClose={() => setShowSubmissions(false)}
+          onAddToSpreadsheet={handleAddSubmissionsToSpreadsheet}
+        />
+      )}
     </div>
   )
 }
