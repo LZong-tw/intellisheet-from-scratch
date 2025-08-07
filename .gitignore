@@ -278,3 +278,23 @@ out/
 
 # Husky
 .husky/_
+
+# Testing
+coverage
+*.lcov
+test-results
+playwright-report
+playwright/.cache
+.vitest-result.json
+
+# E2E test artifacts
+test-results/
+playwright-report/
+playwright/.cache/
+videos/
+screenshots/
+traces/
+
+# Test environment
+.env.test.local
+auth.json
