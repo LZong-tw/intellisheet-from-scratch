@@ -1,0 +1,127 @@
+version: 1
+name: intellisheet-agent-hooks
+
+# Declarative intents the agent can fulfill in this repo
+intents:
+  - id: run_unit_tests
+    description: Run all unit tests with coverage
+    commands:
+      - npm run test:coverage | cat
+    success_criteria:
+      - Output contains 'Coverage report' and tests are passing
+
+  - id: run_e2e_all
+    description: Run all Playwright E2E tests
+    commands:
+      - npm run test:e2e | cat
+    success_criteria:
+      - Playwright finished with 0 failed
+
+  - id: run_e2e_file
+    description: Run a specific Playwright spec file
+    inputs:
+      - name: spec
+        required: true
+        example: e2e/dashboard.spec.ts
+    commands:
+      - npm run test:e2e -- ${spec} | cat
+
+  - id: start_dev_server
+    description: Start Vite dev server on port 3000
+    commands:
+      - npm run dev | cat
+
+  - id: build_production
+    description: Build production bundle
+    commands:
+      - npm run build | cat
+
+  - id: add_workflow_action_call_webhook
+    description: Ensure 'Call Webhook' action exists in workflow builder and is configurable
+    touches:
+      - src/pages/Workflows.tsx
+    steps:
+      - Verify action palette includes webhook action
+      - Ensure configuration form captures URL, method, headers, payload
+      - Ensure test mode triggers a mock fetch and shows status
+    validations:
+      - Search in src/pages/Workflows.tsx for 'webhook_action' entry and config UI
+
+  - id: add_permission_rule_abac
+    description: Add a new ABAC rule template and ensure evaluation path is wired
+    touches:
+      - src/pages/Permissions.tsx
+    steps:
+      - Add UI to create a rule with condition expression and priority
+      - Ensure evaluation function consumes rules in order and applies effect
+    validations:
+      - Rule appears in UI and evaluation preview reflects change
+
+  - id: add_form_field_type
+    description: Add a new field type in form builder
+    inputs:
+      - name: field_type
+        required: true
+        example: rating
+    touches:
+      - src/components/FormBuilder.tsx
+      - src/stores/formStore.ts
+      - src/types (if needed)
+    steps:
+      - Extend field registry and renderers to support ${field_type}
+      - Add validation and default config for ${field_type}
+
+  - id: add_analytics_card
+    description: Add a new analytics card with a KPI and chart
+    touches:
+      - src/pages/Analytics.tsx
+    steps:
+      - Implement a card component and register in dashboard layout
+      - Wire to time-range context
+
+  - id: update_settings_webhook_url
+    description: Update and validate webhook URL in settings
+    touches:
+      - src/pages/Settings.tsx
+    steps:
+      - Add URL input with validation and local persistence
+    validations:
+      - Input shows error on invalid URL and saves correctly on valid URL
+
+  - id: generate_component_test
+    description: Generate a unit test from template for a component
+    inputs:
+      - name: component
+        required: true
+        example: Layout
+    commands:
+      - mkdir -p src/components/__tests__
+      - cp src/test/templates/component.test.template.tsx src/components/__tests__/${component}.test.tsx
+
+  - id: generate_hook_test
+    description: Generate a unit test from template for a React hook
+    inputs:
+      - name: hook
+        required: true
+        example: useCounter
+    commands:
+      - mkdir -p src/hooks/__tests__
+      - cp src/test/templates/hook.test.template.ts src/hooks/__tests__/${hook}.test.ts
+
+  - id: generate_e2e_spec
+    description: Generate an E2E spec from template
+    inputs:
+      - name: feature
+        required: true
+        example: my-feature
+    commands:
+      - mkdir -p e2e
+      - cp e2e/templates/page.test.template.ts e2e/${feature}.spec.ts
+
+references:
+  product: .kiro/steering/product.md
+  structure: .kiro/steering/structure.md
+  tech: .kiro/steering/tech.md
+  specs: .kiro/specs/platform.md
+  requirements: .kiro/requirements/platform.md
+  design: .kiro/design/platform.md
